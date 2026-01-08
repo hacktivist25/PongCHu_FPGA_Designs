@@ -60,14 +60,14 @@ begin
     WAIT FOR 20 ns;
     
     signal_in_sig <= '1';
-    WAIT FOR 20 ns;
-    signal_in_sig <= '0';
+    WAIT FOR 15000 ns;
+    signal_in_sig <= '0'; -- 30 µs period
     WAIT FOR 15000 ns;
     
     signal_in_sig <= '1';
-    WAIT FOR 20 ns;
+    WAIT FOR 15000 ns;
     signal_in_sig <= '0';
-    WAIT FOR 20 ns;
+    WAIT FOR 15000 ns;
     
 end process;
 

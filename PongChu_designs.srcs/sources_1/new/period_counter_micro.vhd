@@ -23,6 +23,7 @@ SIGNAL state_reg, state_next : FSM_state;
 -- registers
 SIGNAL prd_reg, prd_next : STD_LOGIC_VECTOR(19 DOWNTO 0);
 SIGNAL counter_reg, counter_next : INTEGER RANGE 0 TO 49; -- 1µs period
+SIGNAL input_reg : STD_LOGIC;
 
 begin
     process(clk, rst)
@@ -31,14 +32,16 @@ begin
             state_reg <= idle;
             counter_reg <= 0;
             prd_reg <= (OTHERS => '0');
+            input_reg <= '0';
         ELSIF rising_edge(clk) THEN
             state_reg <= state_next;
             counter_reg <= counter_next;
             prd_reg <= prd_next;
+            input_reg <= signal_in;
         END IF;
     END PROCESS;
     
-    process(state_reg, counter_reg, prd_reg, start, signal_in)
+    process(state_reg, counter_reg, prd_reg, start, signal_in, input_reg)
     begin
     -- ===========================    
     -- default values   
@@ -55,13 +58,13 @@ begin
                     state_next <= wait_edge;
                 END IF;
             when wait_edge =>
-                IF signal_in = '1' then
+                IF signal_in = '1' AND input_reg = '0' then -- rising edge of input
                     state_next <= counting;
                     prd_next <= (OTHERS => '0'); -- clear previous result
                     counter_next <= 0;
                 END IF;
             when counting =>
-                IF signal_in = '1' then
+                IF signal_in = '1' AND input_reg = '0' then -- rising edge of input
                     state_next <= done;
                 ELSE
                     IF counter_reg = 49 THEN

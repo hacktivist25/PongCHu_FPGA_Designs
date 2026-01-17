@@ -6,7 +6,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 
 
-entity uart_rx_interface is
+entity flag_buf is
     GENERIC ( d_bits : NATURAL := 8); -- number of data bits
     Port ( rst : in STD_LOGIC;
            clk : in STD_LOGIC;
@@ -15,9 +15,9 @@ entity uart_rx_interface is
            set_flag : in STD_LOGIC;
            data : out STD_LOGIC_VECTOR(d_bits - 1 DOWNTO 0);
            flag : out STD_LOGIC);
-end uart_rx_interface;
+end flag_buf;
 
-architecture Behavioral of uart_rx_interface is
+architecture Behavioral of flag_buf is
 
 SIGNAL buf_reg, buf_next : STD_LOGIC_VECTOR(d_bits - 1 DOWNTO 0);
 SIGNAL flag_reg, flag_next : STD_LOGIC;

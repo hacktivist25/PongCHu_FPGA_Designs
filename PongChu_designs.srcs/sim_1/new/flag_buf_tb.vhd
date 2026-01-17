@@ -3,13 +3,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 
 
-entity uart_rx_interface_tb is
+entity flag_buf_tb is
 --  Port ( );
-end uart_rx_interface_tb;
+end flag_buf_tb;
 
-architecture Behavioral of uart_rx_interface_tb is
+architecture Behavioral of flag_buf_tb is
 
-COMPONENT uart_rx_interface is
+COMPONENT flag_buf is
     GENERIC ( d_bits : NATURAL := 8); -- number of data bits
     Port ( rst : in STD_LOGIC;
            clk : in STD_LOGIC;
@@ -31,7 +31,7 @@ SIGNAL flag_sig : STD_LOGIC;
 
 begin
 
-UUT : uart_rx_interface
+UUT : flag_buf
 GENERIC MAP(d_bits => d_bits_sig)
 PORT MAP( rst => rst_sig,
           clk => clk_sig,

@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" version="29.6.6">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0">
   <diagram name="Page-1" id="dei_UVqWtB3I9CT0xsIc">
-    <mxGraphModel dx="928" dy="1513" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="952" dy="1548" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -13,7 +13,7 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-8" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="N2U8pdOM6c8q68leiIng-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+        <mxCell id="N2U8pdOM6c8q68leiIng-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="ready = 1" vertex="1">
           <mxGeometry height="40" width="160" x="280" y="80" as="geometry" />
         </mxCell>
         <mxCell id="N2U8pdOM6c8q68leiIng-15" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="N2U8pdOM6c8q68leiIng-1">
@@ -85,7 +85,7 @@
             <mxPoint x="690" y="-60" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-37" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#FFCCCC;" value="Conditions are always made such as True will go downwards, and false will go right/left sided" vertex="1">
+        <mxCell id="N2U8pdOM6c8q68leiIng-37" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#FFCCCC;" value="Conditions are always made so that True will go downward,&lt;br&gt;&amp;nbsp;and false will go on right or left side" vertex="1">
           <mxGeometry height="70" width="350" x="515" y="-160" as="geometry" />
         </mxCell>
         <mxCell id="N2U8pdOM6c8q68leiIng-40" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;TRUE&lt;/b&gt;" vertex="1">
@@ -117,7 +117,7 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-54" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;n_count = 0&lt;/div&gt;&lt;div&gt;s_count = 0&lt;/div&gt;" vertex="1">
           <mxGeometry height="40" width="160" x="280" y="520" as="geometry" />
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-56" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;s_tick: signal cadencing uart&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;s_count : count s_ticks for oversampling&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;n_count : count number of bits received&lt;/span&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="N2U8pdOM6c8q68leiIng-56" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;s_tick: signal cadencing uart&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;s_count : count s_ticks for oversampling (x16)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;n_count : count number of data bits received&lt;/span&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="120" width="140" x="135" y="440" as="geometry" />
         </mxCell>
         <mxCell id="N2U8pdOM6c8q68leiIng-57" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DCF1FF;" value="" vertex="1">
@@ -181,7 +181,7 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-83" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="N2U8pdOM6c8q68leiIng-76" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-84" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+        <mxCell id="N2U8pdOM6c8q68leiIng-84" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kZLMDgNeae3tmbGx0KwM-1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="570.0000000000002" y="770" as="targetPoint" />
           </mxGeometry>
@@ -247,10 +247,9 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-128" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-97" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="610" y="1300" />
-              <mxPoint x="610" y="1020" />
+              <mxPoint x="600" y="1300" />
             </Array>
-            <mxPoint x="620" y="1020" as="targetPoint" />
+            <mxPoint x="600" y="1030" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="N2U8pdOM6c8q68leiIng-97" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;parity_reg = bit&lt;/div&gt;&lt;div&gt;s_count = 0&lt;/div&gt;" vertex="1">
@@ -320,7 +319,7 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-130" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-117" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="N2U8pdOM6c8q68leiIng-129">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-117" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" value="n_count = nb_stop_bits" vertex="1">
+        <mxCell id="N2U8pdOM6c8q68leiIng-117" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" value="n_count = nb_stop_bits - 1" vertex="1">
           <mxGeometry height="40" width="160" x="790" y="1464.5" as="geometry" />
         </mxCell>
         <mxCell id="N2U8pdOM6c8q68leiIng-125" edge="1" parent="1" source="N2U8pdOM6c8q68leiIng-119" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
@@ -351,8 +350,16 @@
         <mxCell id="N2U8pdOM6c8q68leiIng-129" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="n_count ++" vertex="1">
           <mxGeometry height="40" width="80" x="970" y="1464.5" as="geometry" />
         </mxCell>
-        <mxCell id="N2U8pdOM6c8q68leiIng-132" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;par_reg : registered value (at start) saying if parity bit is coming or not (and which parity)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;d_nums_reg : registered value (at start) specifiying number of data bits&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="120" width="130" x="140" y="910" as="geometry" />
+        <mxCell id="N2U8pdOM6c8q68leiIng-132" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;par_reg : registered value (at start) saying if parity bit is coming or not (and which parity)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(128, 128, 128);&quot;&gt;d_nums_reg : registered value (at start) specifiying number of data bits shoud be received&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="130" x="140" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="kZLMDgNeae3tmbGx0KwM-2" edge="1" parent="1" source="kZLMDgNeae3tmbGx0KwM-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="570" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kZLMDgNeae3tmbGx0KwM-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="n_count ++" vertex="1">
+          <mxGeometry height="40" width="80" x="460" y="880" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

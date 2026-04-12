@@ -136,7 +136,7 @@ begin
                         receive_bit := '1';
                         if n_count_reg = nb_bits - 1 then
                             clear_n_count := '1';
-                            IF (par(1) XOR par(0)) = '1' THEN
+                            IF (par_reg(1) XOR par_reg(0)) = '1' THEN
                                 state_next <= parity;
                             ELSE
                                 state_next <= stop;
@@ -184,13 +184,13 @@ begin
         -- ======================
         
         -- number of bits
-        IF d_nums = '0' then
+        IF d_nums_reg = '0' then
             nb_bits := 7;
         ELSE
             nb_bits := 8;
         END IF;
        -- number of stop bits
-        IF s_nums = '0' then
+        IF s_nums_reg = '0' then
             nb_stop_bits := 1;
         ELSE
             nb_stop_bits := 2;

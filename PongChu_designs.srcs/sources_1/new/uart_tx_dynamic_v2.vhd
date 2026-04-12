@@ -4,9 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
- -- we consider here no spurious change in parameters (like d_nums, s_nums or par)
- -- to make it more robust, we cound register parameters input when we start to receive/transmit a frame
- -- to make it extremely robust we could allow changes only during idle, or with handshake protocols
+
 entity uart_tx_dynamic_v2 is
     Port ( clk : in STD_LOGIC;
            rst : in STD_LOGIC;
@@ -17,12 +15,13 @@ entity uart_tx_dynamic_v2 is
            s_nums : in STD_LOGIC; -- 0 = 1 stop bit, 1 = 2 stop bits
            par : in STD_LOGIC_VECTOR(1 DOWNTO 0); -- parity scheme : "00" or "11" = no, "01" = odd, "10" = even
            tx_out : out STD_LOGIC;
+           ready : out STD_LOGIC;
            done : out STD_LOGIC);
 end uart_tx_dynamic_v2;
 
 architecture Behavioral of uart_tx_dynamic_v2 is
 
-type FSM_state IS (idle, start_bit, data, parity, stop);
+type FSM_state IS (idle, start_bit, data, parity, stop, done_state);
 SIGNAL state_reg, state_next : FSM_state;
 
 SIGNAL s_count_reg, s_count_next : UNSIGNED( 4 DOWNTO 0 ); -- counting s_ticks for oversampling (up to 31 for 2 stop bits)
@@ -30,6 +29,11 @@ SIGNAL n_count_reg, n_count_next : UNSIGNED( 2 DOWNTO 0 ); -- counting number of
 SIGNAL tx_in_reg, tx_in_next : STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- registered input 
 SIGNAL tx_out_reg, tx_out_next : STD_LOGIC; --- next output bit
 SIGNAL parity_bit_reg, parity_bit_next : STD_LOGIC; -- special registers for parity bits
+
+SIGNAL d_nums_reg, d_nums_next : STD_LOGIC;
+SIGNAL s_nums_reg, s_nums_next : STD_LOGIC;
+SIGNAL par_reg, par_next : STD_LOGIC_VECTOR(1 DOWNTO 0);
+
 
 begin
     process (clk, rst) 
@@ -44,6 +48,9 @@ begin
             tx_in_reg <= (OTHERS => '0');
             tx_out_reg <= '1';
             parity_bit_reg <= '0';
+            d_nums_reg  <= '0';
+            s_nums_reg  <= '0';
+            par_reg <= "00";
         ELSIF rising_edge(clk) then
             state_reg <= state_next;
             s_count_reg <= s_count_next;
@@ -51,6 +58,9 @@ begin
             tx_in_reg <= tx_in_next;
             tx_out_reg <= tx_out_next;
             parity_bit_reg <= parity_bit_next;
+            d_nums_reg  <= d_nums_next;  
+            s_nums_reg  <= s_nums_next;  
+            par_reg <= par_next;  
         END IF;
     end process;
     
@@ -81,7 +91,12 @@ begin
         tx_in_next <= tx_in_reg;
         tx_out_next <= tx_out_reg;
         parity_bit_next <= parity_bit_reg;
+        ready <= '0';
         done <= '0';
+        
+        d_nums_next  <= d_nums_reg;
+        s_nums_next  <= s_nums_reg;
+        par_next <= par_reg;       
         
         clear_s_count := '0';
         inc_s_count := '0';
@@ -99,6 +114,7 @@ begin
         -- ======================
         CASE state_reg IS 
             WHEN idle =>
+                ready <= '1';
                 send_1 := '1';
                 IF tx_start = '1' THEN -- start
                     state_next <= start_bit;
@@ -125,7 +141,7 @@ begin
                         if n_count_reg = nb_bits - 1 then
                             clear_n_count := '1';
                             clear_s_count := '1';
-                            IF (par(1) XOR par(0)) = '1' THEN
+                            IF (par_reg(1) XOR par_reg(0)) = '1' THEN
                                 send_par_bit := '1';
                                 state_next <= parity;
                             ELSE
@@ -156,7 +172,6 @@ begin
                         clear_s_count := '1';
                         IF n_count_reg = nb_stop_bits - 1 then
                             send_1 := '1';
-                            done <= '1';
                             state_next <= idle;
                         ELSE
                             inc_n_count := '1';
@@ -165,6 +180,8 @@ begin
                         inc_s_count := '1';
                     END IF;
                 END IF;
+            WHEN done_state =>
+                done <= '1';
             END CASE;
             
         -- ======================
@@ -172,13 +189,13 @@ begin
         -- ======================
         
         -- number of bits
-        IF d_nums = '0' then
+        IF d_nums_reg = '0' then
             nb_bits := 7;
         ELSE
             nb_bits := 8;
         END IF;
        -- number of stop bits
-        IF s_nums = '0' then
+        IF s_nums_reg = '0' then
             nb_stop_bits := 1;
         ELSE
             nb_stop_bits := 2;
@@ -199,6 +216,9 @@ begin
         IF register_in = '1' then
             tx_in_next <= tx_in;
             parity_bit_next <= parity_bit;
+            d_nums_next <= d_nums;
+            s_nums_next <= s_nums;
+            par_next <= par;
         END IF;
             
         

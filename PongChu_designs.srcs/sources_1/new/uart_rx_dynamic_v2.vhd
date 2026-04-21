@@ -32,6 +32,9 @@ SIGNAL d_nums_reg, d_nums_next:  STD_LOGIC; -- saving n° of stop bits expected 
 SIGNAL s_nums_reg, s_nums_next:  STD_LOGIC; -- saving n° of stop bits expected at starting frame
 SIGNAL par_reg, par_next :  STD_LOGIC_VECTOR( 1 DOWNTO 0 ); -- saving parity_bit_scheme expected at starting frame
 
+SIGNAL rx_prev_reg : STD_LOGIC; -- holds previous value of RX to detect falling edge
+SIGNAL rx_reg : STD_LOGIC; -- holds actual value of RX to make robust design free from metastability
+
 begin
     process (clk, rst) 
     begin
@@ -48,6 +51,8 @@ begin
             d_nums_reg <= '0';
             s_nums_reg <= '0';
             par_reg <= (OTHERS => '0');
+            rx_prev_reg <= '1';
+            rx_reg <= '1';
         ELSIF rising_edge(clk) then
             state_reg <= state_next;
             s_count_reg <= s_count_next;
@@ -58,10 +63,12 @@ begin
             d_nums_reg <= d_nums_next;
             s_nums_reg <= s_nums_next;
             par_reg <= par_next;
+            rx_prev_reg <= rx_reg;
+            rx_reg <= rx_in;
         END IF;
     end process;
     
-    process (rx_in, s_tick, state_reg, s_count_reg, n_count_reg, w_reg, parity_bit_reg, err_reg, d_nums, s_nums, par)
+    process (rx_reg, s_tick, state_reg, s_count_reg, n_count_reg, w_reg, parity_bit_reg, err_reg, d_nums, s_nums, par, rx_prev_reg)
     variable clear_s_count : STD_LOGIC;
     variable inc_s_count : STD_LOGIC;
     variable clear_n_count : STD_LOGIC;
@@ -113,7 +120,7 @@ begin
         CASE state_reg IS 
             WHEN idle =>
             ready <= '1';
-                IF rx_in = '0' THEN -- start bit
+                IF rx_reg = '0' AND rx_prev_reg = '1' THEN -- start bit
                     state_next <= start_bit;
                     clear_s_count := '1';
                     clear_registers := '1';
@@ -162,7 +169,7 @@ begin
                 IF s_tick = '1' then
                     IF s_count_reg =  15 then
                         clear_s_count := '1';
-                        IF rx_in = '0' THEN -- stop bit shall be '1' then ERROR
+                        IF rx_reg = '0' THEN -- stop bit shall be '1' then ERROR
                             err_next(0) <= '1'; -- raise frame error flag
                         END IF;
                         IF n_count_reg = nb_stop_bits - 1 THEN
@@ -211,11 +218,11 @@ begin
         
         -- bit receiving method
         IF receive_bit = '1' THEN
-            w_var(to_integer(n_count_reg)):= rx_in;
+            w_var(to_integer(n_count_reg)):= rx_reg;
             w_next(7 DOWNTO 0) <= w_var;
         END if;
         IF receive_par_bit = '1' THEN
-            parity_bit_next <= rx_in;
+            parity_bit_next <= rx_reg;
         END IF;
         
         -- registers cleaning at start

@@ -168,6 +168,32 @@ begin
     rx_in_sig <= '1';
     wait for 640ns;
     WAIT FOR 4000 ns;
+    
+    
+    
+    
+     -- 7 data bits, 2 stop bits, no parity, frame error TEST 2, "00111 1111"
+    d_nums_sig <= '0';
+    s_nums_sig <= '0';
+    par_sig  <= "00";
+    
+    -- start bit
+    rx_in_sig <= '0';
+    wait for 640ns;
+
+    -- data bits LSB first
+    for i in 0 to 6 loop
+        rx_in_sig <= '1';
+        wait for 640ns;
+    end loop;
+    
+    -- let's say we wait 7 data bits and 1 stop bits
+    -- but we received 8 data bits with one parity bits like "001111111"
+    rx_in_sig <= '0'; -- last data bit, but shall be stop bit
+    wait for 640ns;
+    rx_in_sig <= '0'; -- parity bit = 0, it shouldn'tn trigger new frame since last one is over
+    wait for 640ns;
+    WAIT FOR 4000 ns;
 
 end process;
 

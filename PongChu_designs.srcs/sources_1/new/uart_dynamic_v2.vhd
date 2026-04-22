@@ -16,6 +16,7 @@ entity uart_dynamic_v2 is
            d_nums : in STD_LOGIC; -- '0' = 7 databits, '1' = 8 databits 
            s_nums : in STD_LOGIC; -- '0' = 1 stop bit, '1' = 2 stop bits
            par : in STD_LOGIC_VECTOR(1 DOWNTO 0); -- parity scheme : "00" or "11" = no, "01" = odd, "10" = even
+           cpu_clear_overrun : STD_LOGIC; --  clears overrun sticky flag
            tx : out STD_LOGIC;
            tx_full : out STD_LOGIC;
            rx_empty : out STD_LOGIC;
@@ -101,6 +102,9 @@ SIGNAL tx_start : STD_LOGIC;
 
 SIGNAL fifo_rx_wr : STD_LOGIC;
 
+SIGNAL overrun_RX_reg : STD_LOGIC;
+
+
 begin
 --========================
 -- COMPONENT declaration
@@ -165,8 +169,20 @@ begin
 --========================
 -- overrun error RX
 --========================
-    overrun_RX <= fifo_rx_full AND rx_done;
-
+    process(clk, rst)
+    begin
+        IF rst = '0' THEN
+            overrun_RX_reg <= '0';
+        ELSIF rising_edge(clk) THEN
+            IF cpu_clear_overrun = '1' then
+                overrun_RX_reg <= '0';
+            ELSIF (rx_done AND fifo_rx_full) = '1' THEN
+                overrun_RX_reg <= '1';
+            END IF;
+        END IF;
+    end process;
+    
+    overrun_rx <= overrun_rx_reg;
 --========================
 -- start signal for TX
 --========================

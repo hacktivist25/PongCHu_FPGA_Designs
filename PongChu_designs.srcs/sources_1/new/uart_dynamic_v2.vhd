@@ -16,7 +16,7 @@ entity uart_dynamic_v2 is
            d_nums : in STD_LOGIC; -- '0' = 7 databits, '1' = 8 databits 
            s_nums : in STD_LOGIC; -- '0' = 1 stop bit, '1' = 2 stop bits
            par : in STD_LOGIC_VECTOR(1 DOWNTO 0); -- parity scheme : "00" or "11" = no, "01" = odd, "10" = even
-           cpu_clear_overrun : STD_LOGIC; --  clears overrun sticky flag
+           cpu_clear_overrun : in STD_LOGIC; --  clears overrun sticky flag
            tx : out STD_LOGIC;
            tx_full : out STD_LOGIC;
            rx_empty : out STD_LOGIC;

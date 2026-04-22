@@ -21,6 +21,7 @@ COMPONENT uart_dynamic_v2 is
            d_nums : in STD_LOGIC; -- '0' = 7 databits, '1' = 8 databits 
            s_nums : in STD_LOGIC; -- '0' = 1 stop bit, '1' = 2 stop bits
            par : in STD_LOGIC_VECTOR(1 DOWNTO 0); -- parity scheme : "00" or "11" = no, "01" = odd, "10" = even
+           cpu_clear_overrun : in STD_LOGIC; --  clears overrun sticky flag
            tx : out STD_LOGIC;
            tx_full : out STD_LOGIC;
            rx_empty : out STD_LOGIC;
@@ -31,7 +32,7 @@ end COMPONENT;
 
 -- wrong method for procedure : we should have made it relative to a number of clock edges, and 
 -- not relative to a time step like here, but let's keep it this way, since we always 
--- operate with a 50MHz clock, and we stay in 9600 bauds
+-- operate with a 50MHz clock, and we stay at 9600 bauds
 procedure receive_uart_byte (
     signal rx : out std_logic;
     constant data  : std_logic_vector(8 downto 0); -- 8 max bits for data + 1 potential parity bit in MSB
@@ -74,6 +75,7 @@ SIGNAL bd_rate_sig : STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL d_nums_sig : STD_LOGIC;
 SIGNAL s_nums_sig : STD_LOGIC;
 SIGNAL par_sig : STD_LOGIC_VECTOR(1 DOWNTO 0);                   
+SIGNAL cpu_clear_overrun_sig : STD_LOGIC;                   
 SIGNAL tx_sig : STD_LOGIC;                          
 SIGNAL tx_full_sig : STD_LOGIC;                          
 SIGNAL rx_empty_sig : STD_LOGIC;                          
@@ -84,11 +86,11 @@ SIGNAL loopback_en : STD_LOGIC; -- used to link rx and tx together
 SIGNAL rx_manual_sig : STD_LOGIC; -- used when tx and rx aren't linked together
 
 -- array of 9 words to write on TX FIFO for PHASE 2 test (see later)
-type data_array_t is array (0 to 8) of std_logic_vector(7 downto 0);
+type data_array_t is array (0 to 9) of std_logic_vector(7 downto 0);
 constant test_data : data_array_t := (
     x"12", x"34", x"56", x"78",
     x"9A", x"BC", x"DE", x"F0",
-    x"50"
+    x"50", x"55"
 );
 
 begin
@@ -106,7 +108,8 @@ Port map ( clk => clk_sig,
            bd_rate => bd_rate_sig,
            d_nums => d_nums_sig,                                                       
            s_nums => s_nums_sig,                                                       
-           par => par_sig,                                                                                                                                                                  
+           par => par_sig,  
+           cpu_clear_overrun => cpu_clear_overrun_sig,  
            tx => tx_sig,  
            tx_full => tx_full_sig,
            rx_empty => rx_empty_sig,                                                                                 
@@ -135,10 +138,12 @@ end process;
 --
 -- PHASE 3 :RX/TX loopback
 -- - C1 : link TX to RX
--- - C2 : write 9 words on TX to check if they arrive correctly on RX (1 packet should be 
---   lost from TX side --> TX full)
--- - C3 : write 1 word when RX is full (1 packet should be lost from RX --> overrun error)
--- - C4 : read 8 received words
+-- - C2 : write 10 words on TX to check if they arrive correctly on RX (1 packet should be 
+--   lost from TX side --> TX full, and 9th packet coming should induce overrun on RX)
+-- - C3 : read 8 received words
+
+-- much more breaking cases can occur, but most of those will be covered in an UVM-style
+-- testbench later
 -- ================================================================================
 
 test_vector : process
@@ -154,6 +159,7 @@ begin
     d_nums_sig <= '0'; 
     s_nums_sig <= '0'; 
     par_sig <= "00";
+    cpu_clear_overrun_sig <= '0';
     loopback_en <= '0';
     rx_manual_sig <= '1';
     WAIT FOR 50ns;
@@ -166,51 +172,66 @@ begin
     rd_uart_sig <= '1';
     WAIT FOR 20 ns;
     rd_uart_sig <= '0';
-    WAIT FOR 20 ns;
+    WAIT FOR 5ms;
     
-    -- ==
+    -- =====================================================================================================
     -- A2
-    -- ==
+    --     |    UART setting                                   |   what we receive
+    --     |data bits : stop bits : parity : error expected    | data bits  : (parity)frame    : stop bits
+    -- - 1 |     8    :    1      :  /     :      /            |    8       :    01010101      :    1
+    -- - 2 |     7    :    2      :  /     :      /            |    7       :    0101010       :    2
+    -- - 3 |     7    :    1      :  /     : frame error       |    8       :    00101010      :    1
+    -- - 4 |     8    :    1      : even   : parity error      |    8       :    (1)00110011   :    1
+    -- - 5 |     8    :    1      : even   :                   |    8       :    (0)11001100   :    1
+    -- - 6 |     7    :    1      : even   : parity AND frame  |    8       :    (0)10001001   :    1
+    -- - 7 |     8    :    2      : even   : partiy            |    8       :    (1)10100101   :    2
+    -- - 8 |     8    :    1      : even   : parity            |    8       :    10011001      :    1
+    -- - 9 |     8    :    1      : even   : overrun           |    8       :    00110011      :    1
+    -- =====================================================================================================                                                              
     d_nums_sig <= '1';  -- 8 data bis
     s_nums_sig <= '0';  -- 1 stop bit
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "001010101", 640ns, 8, 1, 0); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "001010101", 104us, 8, 1, 0); 
+    WAIT FOR 2ms;
     d_nums_sig <= '0'; -- 7 data bis
     s_nums_sig <= '1'; -- 2 stop bit
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "000101010", 640ns, 7, 2, 0); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "000101010", 104us, 7, 2, 0); 
+    WAIT FOR 2ms;
     -- frame error
     s_nums_sig <= '0'; -- 1 stop bit
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "000101010", 640ns, 8, 1, 0); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "000101010", 104us, 8, 1, 0); 
+    WAIT FOR 2ms;
     -- parity error
     par_sig <= "10"; -- even parity scheme
     d_nums_sig <= '1'; -- 8 data bis
     WAIT FOR 20ns; 
-    receive_uart_byte (rx_manual_sig, "100110011", 640ns, 8, 1, 1); 
-    WAIT FOR 2000ns;
-    receive_uart_byte (rx_manual_sig, "011001100", 640ns, 8, 1, 1); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "100110011", 104us, 8, 1, 1); 
+    WAIT FOR 2ms;
+    receive_uart_byte (rx_manual_sig, "011001100", 104us, 8, 1, 1); 
+    WAIT FOR 2ms;
     -- parity AND frame error (shoud that even be possible/allowed ?)
     d_nums_sig <= '0'; -- 7 data bis
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "010001001", 640ns, 8, 1, 1); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "010001001", 104us, 8, 1, 1); 
+    WAIT FOR 2ms;
     d_nums_sig <= '1'; -- 8 data bis
     s_nums_sig <= '1'; -- 2 stop bit
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "110100101", 640ns, 8, 2, 1); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "110100101", 104us, 8, 2, 1); 
+    WAIT FOR 2ms;
     s_nums_sig <= '0'; -- 1 stop bit
     WAIT FOR 20ns;
-    receive_uart_byte (rx_manual_sig, "010011001", 640ns, 8, 1, 0); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "010011001", 104us, 8, 1, 0); 
+    WAIT FOR 2ms;
     -- lost packet
-    receive_uart_byte (rx_manual_sig, "000110011", 640ns, 8, 1, 0); 
-    WAIT FOR 2000ns;
+    receive_uart_byte (rx_manual_sig, "000110011", 104us, 8, 1, 0); 
+    WAIT FOR 2ms;
+    cpu_clear_overrun_sig <= '1';
+    WAIT FOR 20ns;
+    cpu_clear_overrun_sig <= '0';
+    WAIT FOR 3ms;
 
     -- ==
     -- A3 -- read all RX fifo
@@ -224,6 +245,7 @@ begin
             wait until falling_edge(clk_sig);
         end loop;
     end loop;
+    WAIT FOR 5ms;
     
     -- ==
     -- B1
@@ -239,7 +261,7 @@ begin
     end loop;
     wait until falling_edge(clk_sig);
     wr_uart_sig <= '0';
-    WAIT FOR 2000ns;
+    WAIT FOR 15ms;
    
    
     -- ==
@@ -254,13 +276,33 @@ begin
     wr_data_sig <= test_data(0);
     wait until falling_edge(clk_sig);
     wr_uart_sig <= '1'; -- activate writing mode, we will write all in a burst
-    for i in 1 to 8 loop
+    for i in 1 to 9 loop
         wait until falling_edge(clk_sig);
         wr_data_sig <= test_data(i);
     end loop;
     wait until falling_edge(clk_sig);
     wr_uart_sig <= '0';
-    WAIT FOR 2000ns;
+    WAIT FOR 15ms;
+    
+   
+    -- ==
+    -- C3
+    -- ==
+    wait until falling_edge(clk_sig);
+    FOR i in 0 to 7 loop
+        rd_uart_sig <= '1';
+        wait until falling_edge(clk_sig);
+        rd_uart_sig <= '0';
+        FOR j in 0 to 7 loop
+            wait until falling_edge(clk_sig);
+        end loop;
+    end loop;
+    WAIT FOR 1ms;
+    -- clean ovverun flag
+    cpu_clear_overrun_sig <= '1'; 
+    WAIT FOR 20 ns;
+    cpu_clear_overrun_sig <= '0'; 
+    WAIT FOR 1ms;
     
 end process;
 

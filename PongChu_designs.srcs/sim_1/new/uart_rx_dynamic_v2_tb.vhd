@@ -144,7 +144,9 @@ begin
     s_nums_sig <= '1';
     par_sig  <= "01";
     receive_uart_byte(rx_in_sig, "110110101", 640 ns, 8, 2, 1);
-    WAIT FOR 4000 ns;
+    WAIT FOR 20000 ns;
+    
+    
     
     
      -- 7 data bits, 2 stop bits, no parity, frame error test, "111 1111"
@@ -167,7 +169,8 @@ begin
     wait for 640ns;
     rx_in_sig <= '1';
     wait for 640ns;
-    WAIT FOR 4000 ns;
+    WAIT FOR 20000 ns;
+    
     
     
     
@@ -193,6 +196,7 @@ begin
     wait for 640ns;
     rx_in_sig <= '0'; -- parity bit = 0, it shouldn'tn trigger new frame since last one is over
     wait for 640ns;
+    rx_in_sig <= '1';
     WAIT FOR 4000 ns;
 
 end process;

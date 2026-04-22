@@ -68,7 +68,7 @@ begin
         END IF;
     end process;
     
-    process (rx_reg, s_tick, state_reg, s_count_reg, n_count_reg, w_reg, parity_bit_reg, err_reg, d_nums, s_nums, par, rx_prev_reg)
+    process (rx_reg, s_tick, state_reg, s_count_reg, n_count_reg, w_reg, parity_bit_reg, err_reg, d_nums_reg, s_nums_reg, par_reg, rx_prev_reg)
     variable clear_s_count : STD_LOGIC;
     variable inc_s_count : STD_LOGIC;
     variable clear_n_count : STD_LOGIC;
@@ -84,6 +84,7 @@ begin
     variable is_odd : STD_LOGIC; -- 1 if number of '1' in received data bit is odd
     
     variable w_var : STD_LOGIC_VECTOR(7 DOWNTO 0); -- intermediate value for receiving register
+    variable err_var : STD_LOGIC_VECTOR(1 DOWNTO 0); -- intermediate value for receiving error register
     
     begin
         -- ======================
@@ -93,10 +94,9 @@ begin
         s_count_next <= s_count_reg;
         n_count_next <= n_count_reg;
         w_var := w_reg(7 DOWNTO 0);
+        err_var := err_reg;
         w_next(7 DOWNTO 0) <= w_var;
-        w_next(9 DOWNTO 8) <= w_reg(9 DOWNTO 8);
         parity_bit_next <= parity_bit_reg;
-        err_next <= err_reg;
         done <= '0';
         ready <= '0';
         
@@ -170,7 +170,7 @@ begin
                     IF s_count_reg =  15 then
                         clear_s_count := '1';
                         IF rx_reg = '0' THEN -- stop bit shall be '1' then ERROR
-                            err_next(0) <= '1'; -- raise frame error flag
+                            err_var(0) := '1'; -- raise frame error flag
                         END IF;
                         IF n_count_reg = nb_stop_bits - 1 THEN
                             state_next <= done_state;
@@ -229,7 +229,7 @@ begin
         IF clear_registers = '1' THEN
             w_next <= (OTHERS => '0');
             parity_bit_next <= '0';
-            err_next <= "00";
+            err_var := "00";
         END IF;
         
         -- saving parameters when a frame is starting
@@ -241,25 +241,26 @@ begin
         
         -- parity error
         is_odd := w_reg(7) XOR w_reg(6) XOR w_reg(5) XOR w_reg(4) XOR w_reg(3) XOR w_reg(2) XOR w_reg(1) XOR w_reg(0);
-        CASE par is
+        CASE par_reg is
             WHEN "10" => -- even parity scheme
                 IF (is_odd XOR parity_bit_reg) = '1' then
-                    err_next(1) <= '1';
+                    err_var(1) := '1';
                 else   
-                    err_next(1) <= '0';
+                    err_var(1) := '0';
                 END IF;
             WHEN "01" => -- odd parity scheme
                 IF (is_odd XOR parity_bit_reg) = '1' then
-                    err_next(1) <= '0';
+                    err_var(1) := '0';
                 else   
-                    err_next(1) <= '1';
+                    err_var(1) := '1';
                 END IF;
             WHEN OTHERS => -- no parity scheme parity scheme
-                err_next(1) <= '0';
+                err_var(1) := '0';
             END CASE;
             
             -- 2 MSBs of rx word are for error bits (parity and frame error)
-            w_next(9 DOWNTO 8) <= err_reg;
+            w_next(9 DOWNTO 8) <= err_var;
+            err_next <= err_var;
     end process;
      -- ======================
      -- output                
